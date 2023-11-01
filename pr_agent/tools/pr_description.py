@@ -12,6 +12,7 @@ from pr_agent.algo.utils import load_yaml
 from pr_agent.config_loader import get_settings
 from pr_agent.git_providers import get_git_provider
 from pr_agent.git_providers.git_provider import get_main_pr_language
+from pr_agent.tools.save_pr_info import save_pr_info, save_pr_info_json, get_pr_card_num
 
 
 class PRDescription:
@@ -28,6 +29,7 @@ class PRDescription:
         self.main_pr_language = get_main_pr_language(
             self.git_provider.get_languages(), self.git_provider.get_files()
         )
+        self.pr_url = pr_url
 
         # Initialize the AI handler
         self.ai_handler = AiHandler()
@@ -44,6 +46,7 @@ class PRDescription:
         }
 
         self.user_description = self.git_provider.get_user_description()
+        self.icafe_card = get_pr_card_num(self.vars['description'])
     
         # Initialize the token handler
         self.token_handler = TokenHandler(
@@ -69,6 +72,14 @@ class PRDescription:
         
         logging.info('Preparing answer...')
         pr_title, pr_body, pr_types, markdown_text = self._prepare_pr_answer()
+
+        logging.info('Preparing writing...')
+        write_data = self._save_pr_answer()
+        file_name_base = 'pr-' + self.pr_url.split("/")[-1]
+        save_pr_info(file_name_base + '.txt', self.pr_url, self.icafe_card,  write_data)
+        save_pr_info_json(file_name_base + '.json', self.pr_url, self.icafe_card, write_data)
+        logging.debug(f'XysDebug markdown_text: {markdown_text}')
+        logging.debug(f'XysDebug pr_title: {pr_title}')
         
         if get_settings().config.publish_output:
             logging.info('Pushing answer...')
@@ -198,3 +209,27 @@ class PRDescription:
             logging.info(f"title:\n{title}\n{pr_body}")
 
         return title, pr_body, pr_types, markdown_text
+    
+
+    def _save_pr_answer(self) -> Tuple[str, str, List[str], str]:
+        """
+        Prepare the PR description based on the AI prediction data.
+
+        Returns:
+        - title: a string containing the PR title.
+        - pr_body: a string containing the PR body in a markdown format.
+        - pr_types: a list of strings containing the PR types.
+        - markdown_text: a string containing the AI prediction data in a markdown format. used for publishing a comment
+        """
+        # Load the AI prediction data into a dictionary
+        data = load_yaml(self.prediction.strip())
+
+        res = dict()
+        # 这里需要将PR-title的信息和description的信息写入本地
+        for key, value in data.items():
+            if key == "PR Title" or key == "PR Description":
+                res[key] = value
+                logging.debug(f'XysDebug mardown_text--> key: {key}')
+                logging.debug(f'XysDebug mardown_text--> value: {value}')
+
+        return res

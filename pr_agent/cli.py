@@ -41,7 +41,6 @@ For example: 'python cli.py --pr_url=... review --pr_reviewer.extra_instructions
     parser.add_argument('command', type=str, help='The', choices=commands, default='review')
     parser.add_argument('rest', nargs=argparse.REMAINDER, default=[])
     args = parser.parse_args(inargs)
-    logging.basicConfig(level=os.environ.get("LOGLEVEL", "INFO"))
     command = args.command.lower()
     get_settings().set("CONFIG.CLI_MODE", True)
     result = asyncio.run(PRAgent().handle_request(args.pr_url, command + " " + " ".join(args.rest)))
