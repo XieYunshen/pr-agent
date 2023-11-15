@@ -13,6 +13,7 @@ from pr_agent.tools.pr_questions import PRQuestions
 from pr_agent.tools.pr_reviewer import PRReviewer
 from pr_agent.tools.pr_update_changelog import PRUpdateChangelog
 from pr_agent.tools.pr_config import PRConfig
+from pr_agent.tools.pr_information import PRInformation
 
 command2class = {
     "auto_review": PRReviewer,
@@ -30,6 +31,7 @@ command2class = {
     "update_changelog": PRUpdateChangelog,
     "config": PRConfig,
     "settings": PRConfig,
+    "information": PRInformation,
 }
 
 commands = list(command2class.keys())

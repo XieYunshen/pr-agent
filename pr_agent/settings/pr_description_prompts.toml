@@ -15,16 +15,27 @@ You must use the following YAML schema to format your answer:
 PR Title:
   type: string
   description: an informative title for the PR, describing its main theme
+PR Category:
+  type: array
+  items:
+    type:string
+    enum:
+      - CINN
+      - Static Graphs
+      - Dynamic Graphs
 PR Type:
   type: array
   items:
     type: string
     enum:
+      - New Features
+      - Improvements
+      - Performance
       - Bug fix
-      - Tests
-      - Bug fix with tests
-      - Refactoring
-      - Enhancement
+      - BC Breaking
+      - Not User Facing
+      - Security
+      - Deprecations
       - Documentation
       - Other
 PR Description:
@@ -48,6 +59,8 @@ Example output:
 ```yaml
 PR Title: |-
   ...
+PR Category:
+  - CINN
 PR Type:
   - Bug fix
 PR Description: |-

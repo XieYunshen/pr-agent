@@ -110,6 +110,7 @@ class PRDescription:
             Any exceptions raised by the 'get_pr_diff' and '_get_prediction' functions.
 
         """
+        logging.debug(f'XysDebug model: {model}')
         logging.info('Getting PR diff...')
         self.patches_diff = get_pr_diff(self.git_provider, self.token_handler, model)
         logging.info('Getting AI prediction...')

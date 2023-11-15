@@ -48,6 +48,17 @@ class GithubProvider(GitProvider):
         if self.incremental.is_incremental:
             self.get_incremental_commits()
 
+    def get_author(self):
+        return self.pr.user.login
+
+    def get_pr_reviewer(self):
+        reviewer_list = []
+
+        for review in self.pr.get_reviews():
+            reviewer_list.append(review.user.login)
+
+        return reviewer_list
+
     def get_incremental_commits(self):
         self.commits = list(self.pr.get_commits())
 

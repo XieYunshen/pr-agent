@@ -2,6 +2,7 @@ import argparse
 import asyncio
 import logging
 import os
+logging.basicConfig(level=os.environ.get("LOGLEVEL", "INFO"))
 
 from pr_agent.agent.pr_agent import PRAgent, commands
 from pr_agent.config_loader import get_settings
