@@ -66,6 +66,46 @@ def write_json(file_name, info_file_path=None, **kwargs):
     logging.info("write to json_file done!")
 
 
+def pr_other_info_write_json(file_name, key, info_file_path=None, **kwargs):
+    """
+    以PR为key,将**kwargs中的内容追加至file_name中
+    """
+    if info_file_path is None:
+        info_file_path = 'pr-info-dir_' + time.strftime("%Y-%m-%d", time.localtime())
+    if not os.path.exists(info_file_path):
+        os.makedirs(info_file_path)
+    logging.info("PR info file will save to: " + info_file_path)
+
+    json_file_path = os.path.join(info_file_path, file_name)
+
+    try:
+        # 读取文件内容
+        with open(json_file_path, 'r+') as f:
+            try:
+                # 尝试解析文件内容
+                content = json.load(f)
+            except json.JSONDecodeError:
+                # 如果文件为空或者不是合法的JSON，创建一个新的内容字典
+                content = {}
+            content[key] = kwargs
+            # 设置文件指针到文件开头
+            f.seek(0)
+            json.dump(content, f, indent=2, ensure_ascii=False)
+            f.truncate()
+            logging.info("Write to JSON file done!")
+
+    except FileNotFoundError:
+        # 如果文件不存在，创建一个新文件并写入内容
+        with open(json_file_path, 'w') as f:
+            content = {key: kwargs}
+            json.dump(content, f, indent=2, ensure_ascii=False)
+            logging.info("Create new JSON file and write done!")
+
+    except Exception as e:
+        logging.error(e)
+        logging.error("Cannot insert into JSON file. Caused by: " + str(e))
+
+
 def get_pr_card_num(info):
     if info is None:
         return ''

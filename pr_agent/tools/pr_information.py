@@ -12,7 +12,7 @@ from pr_agent.algo.utils import load_yaml
 from pr_agent.config_loader import get_settings
 from pr_agent.git_providers import get_git_provider
 from pr_agent.git_providers.git_provider import get_main_pr_language
-from pr_agent.tools.save_pr_info import save_pr_info, save_pr_info_json, get_pr_card_num, get_card_info
+from pr_agent.tools.save_pr_info import get_pr_card_num, get_card_info, pr_other_info_write_json
 
 
 class PRInformation:
@@ -47,7 +47,7 @@ class PRInformation:
 
         self.contriutor_info = {
             "author":self.git_provider.get_author(),
-            "reviwer":self.git_provider.get_pr_reviewer(),
+            "reviewer":self.git_provider.get_pr_reviewer(),
         }
 
         self.user_description = self.git_provider.get_user_description()
@@ -73,13 +73,29 @@ class PRInformation:
         3. 用于获取PR描述使用的prompts内容
         """
         logging.info('Display a PR Information')
-
-        # logging.debug("self.vars: %s", self.vars)
-        # logging.debug("self.token_handler: %s", self.token_handler)
-        # for k,v in self.vars.items():
-        #     print("k: %s, v: %s" %(k,v))
-        #     print("#"*88)
-
-        print(self.contriutor_info)
-        print(self.icafe_card)
+        logging.info('PR url: ', self.pr_url)
+        logging.info('Author: ', self.contriutor_info['author'])
+        logging.info('Reviewer: ', self.contriutor_info['reviewer'])
+        logging.info('Icafe info: ', self.icafe_card)
+        pr_id = self.pr_url.split('/')[-1]
+        if len(self.icafe_card) == 1:
+            card_id = self.icafe_card[0].split('-')[-1]
+            card_title, card_created_user, card_responsible_people, card_parent_info = get_card_info(card_id)
+            file_name = "pr_icafe_info.json"
+            pr_other_info_write_json(
+                        file_name=file_name,
+                        key = pr_id,             
+                        card_title=card_title, 
+                        card_created_user=card_created_user, 
+                        card_responsible_people=card_responsible_people, 
+                        card_parent_info=card_parent_info)
+        
+        # 将参与者的信息写入pr_contributor_info.json
+        file_name = "pr_contributor_info.json"
+        pr_other_info_write_json(
+                    file_name=file_name,
+                    key = pr_id,             
+                    author=self.contriutor_info['author'],
+                    reviewer=self.contriutor_info['reviewer'])
+        
         return ""
